@@ -37,7 +37,7 @@ Go to **SQL Editor** in your Supabase dashboard and run these migrations in orde
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Enable RLS (Row Level Security)
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
+ALTER DATABASE postgres SET "app.jwt_secret" TO 'NH1eNgalELMcR69zFfqj1CxfNDW+nthP4lqesUghcyo=';
 ```
 
 ### Migration 2: Create Profiles Table
