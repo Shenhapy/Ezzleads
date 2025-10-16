@@ -10,30 +10,33 @@
 ### Week 1-2: Setup & Planning
 
 #### 1.1 Project Initialization
-- [ ] **Task:** Create project repository on GitHub/GitLab
+- [x] **Task:** Create project repository on GitHub/GitLab
   - **Brief:** Set up Git repository with proper .gitignore, README, and initial folder structure. Create dev, staging, and main branches.
 
-- [ ] **Task:** Set up local development environment
-  - **Brief:** Install Node.js, VS Code, MongoDB, and necessary tools. Configure environment variables template (.env.example).
+- [x] **Task:** Set up local development environment
+  - **Brief:** Install Node.js (v18+), VS Code, and necessary tools. Configure environment variables template (.env.local).
 
-- [ ] **Task:** Choose and finalize tech stack
-  - **Brief:** Decide on frontend framework (Next.js recommended), backend (Node.js + Express), database (MongoDB), and hosting providers.
+- [x] **Task:** Choose and finalize tech stack
+  - **Brief:** ✅ Finalized: Next.js 14+ (TypeScript), Tailwind CSS, shadcn/ui, Supabase (PostgreSQL), NextAuth.js, Vercel deployment.
 
-- [ ] **Task:** Create project folder structure
-  - **Brief:** Set up directories: `/frontend`, `/backend`, `/docs`, `/database`. Initialize package.json for both frontend and backend.
+- [x] **Task:** Initialize Next.js project with TypeScript
+  - **Brief:** ✅ Project scaffolded with: TypeScript, Tailwind CSS, shadcn/ui config, Supabase clients, folder structure, package.json with all dependencies.
 
 #### 1.2 Database Design
 - [ ] **Task:** Create complete database schema diagram
-  - **Brief:** Design ER diagram showing all tables/collections and relationships (users, wallets, leads, purchases, CRM, etc.). Use tools like dbdiagram.io or draw.io.
+  - **Brief:** Design ER diagram showing all tables and relationships (users, wallets, leads, purchases, CRM, etc.). Use dbdiagram.io or draw.io.
 
-- [ ] **Task:** Define MongoDB collections or SQL tables
-  - **Brief:** Write schema definitions for all 13 tables: users, wallets, wallet_transactions, credit_requests, leads, lead_photos, lead_purchases, crm_leads, crm_activities, cart, favorites, notifications, contact_submissions.
+- [ ] **Task:** Define PostgreSQL tables schema
+  - **Brief:** Write SQL schema definitions for all 13 tables: users (handled by Supabase Auth), profiles, wallets, wallet_transactions, credit_requests, leads, lead_purchases, crm_leads, crm_activities, cart, favorites, notifications, contact_submissions.
 
-- [ ] **Task:** Set up development database
-  - **Brief:** Create MongoDB Atlas account (free tier) or local MongoDB instance. Create database and configure connection strings.
+- [ ] **Task:** Set up Supabase project
+  - **Brief:** Create Supabase account (free tier), create new project, save connection strings and API keys. Configure Row Level Security (RLS) policies.
+
+- [ ] **Task:** Create database migrations
+  - **Brief:** Use Supabase SQL Editor or migration files to create all tables with proper types, constraints, foreign keys, and indexes.
 
 - [ ] **Task:** Create database seed data
-  - **Brief:** Prepare sample data for testing: 3-5 users (buyer, agent, manager), 10-15 sample leads, test wallet balances.
+  - **Brief:** Prepare sample data for testing: 3-5 users (buyer, agent, manager), 10-15 sample leads, test wallet balances. Use Supabase seed script.
 
 #### 1.3 Design & Wireframes
 - [ ] **Task:** Create wireframes for all main pages
@@ -49,146 +52,143 @@
 
 ### Week 3-4: Core Backend Development
 
-#### 2.1 Backend Setup
-- [ ] **Task:** Initialize Express.js server
-  - **Brief:** Create `/backend` folder, install Express, set up basic server on port 5000, test with Hello World endpoint.
+#### 2.1 Next.js API Setup
+- [ ] **Task:** Set up Next.js API routes structure
+  - **Brief:** Create `/src/app/api` directory structure for API endpoints. Configure API route handlers with TypeScript.
 
-- [ ] **Task:** Set up MongoDB connection with Mongoose
-  - **Brief:** Install Mongoose, create database connection file, implement connection error handling and retry logic.
+- [ ] **Task:** Set up Supabase client
+  - **Brief:** Install `@supabase/supabase-js` and `@supabase/ssr`. Create Supabase client utilities for server and client components. Configure in `lib/supabase/`.
 
 - [ ] **Task:** Create environment configuration
-  - **Brief:** Set up dotenv for environment variables: DB_URI, JWT_SECRET, PORT, NODE_ENV, EMAIL credentials, etc.
+  - **Brief:** Set up `.env.local` file with: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, NEXTAUTH_SECRET, NEXTAUTH_URL.
 
-- [ ] **Task:** Implement request logging and error handling
-  - **Brief:** Install Morgan for request logging, create global error handler middleware, set up consistent API response format.
+- [ ] **Task:** Set up error handling and API response utilities
+  - **Brief:** Create utility functions for consistent API responses (success/error), error logging, and TypeScript error types in `lib/api/`.
 
-#### 2.2 Authentication System
-- [ ] **Task:** Create User model/schema
-  - **Brief:** Define user schema with fields: username, email, password_hash, role (buyer/agent/manager/jv), status, profile_data, timestamps. Add indexes on email and username.
+#### 2.2 Authentication System with NextAuth.js
+- [ ] **Task:** Install and configure NextAuth.js
+  - **Brief:** Install `next-auth`. Create `/src/app/api/auth/[...nextauth]/route.ts` with NextAuth configuration. Set up Supabase adapter.
 
-- [ ] **Task:** Implement password hashing with bcrypt
-  - **Brief:** Create password hashing utility, implement pre-save hook to hash passwords before storing, create password comparison method.
+- [ ] **Task:** Create user profiles table
+  - **Brief:** In Supabase, create `profiles` table linked to auth.users: id (FK), role (buyer/agent/manager/jv), status (active/inactive), display_name, created_at, updated_at.
 
-- [ ] **Task:** Build JWT authentication system
-  - **Brief:** Create JWT token generation/verification utilities, implement access tokens (15min expiry) and refresh tokens (7 day expiry).
+- [ ] **Task:** Implement authentication callbacks
+  - **Brief:** Configure NextAuth callbacks: jwt (add user role), session (expose user data), signIn (create profile on first login). Store in `lib/auth.ts`.
 
 - [ ] **Task:** Create authentication middleware
-  - **Brief:** Build middleware to verify JWT tokens, extract user data, protect routes, handle token expiration errors.
+  - **Brief:** Build Next.js middleware in `middleware.ts` to protect routes based on auth status and user roles. Redirect unauthorized users.
 
-- [ ] **Task:** Build registration API endpoint
-  - **Brief:** POST /api/auth/register - validate input (email format, password strength), check for existing users, create user, return JWT token.
+- [ ] **Task:** Build registration page with email/password
+  - **Brief:** Create `/src/app/(auth)/register/page.tsx` with form (email, password, confirm password, role selection). Use NextAuth credentials provider or Supabase Auth.
 
-- [ ] **Task:** Build login API endpoint
-  - **Brief:** POST /api/auth/login - validate credentials, compare passwords, generate JWT tokens, return user data and tokens.
+- [ ] **Task:** Build login page
+  - **Brief:** Create `/src/app/(auth)/login/page.tsx` with email/password form. Integrate NextAuth signIn function. Add "Forgot password?" link.
 
-- [ ] **Task:** Build logout endpoint (optional)
-  - **Brief:** POST /api/auth/logout - invalidate refresh token, clear client-side tokens.
+- [ ] **Task:** Build logout functionality
+  - **Brief:** Create logout button component that calls NextAuth signOut. Clear session and redirect to home page.
 
 - [ ] **Task:** Implement password reset flow
-  - **Brief:** Create endpoints for request reset (send email), verify token, and update password. Generate secure reset tokens with expiration.
+  - **Brief:** Create forgot password page, use Supabase Auth password reset. Create reset password page with token validation. Send reset emails.
 
 #### 2.3 Role-Based Access Control
-- [ ] **Task:** Create role verification middleware
-  - **Brief:** Build middleware to check user roles (requireRole(['buyer', 'manager'])). Prevent unauthorized access to role-specific routes.
+- [ ] **Task:** Create role verification utilities
+  - **Brief:** Build utility functions to check user roles in API routes and server components. Create `requireRole(['buyer', 'manager'])` helper in `lib/auth/roles.ts`.
 
-- [ ] **Task:** Implement route protection
-  - **Brief:** Apply authentication and role middleware to all protected routes. Create public vs. authenticated route separation.
+- [ ] **Task:** Implement route protection with middleware
+  - **Brief:** Configure Next.js middleware to protect routes by role. Define public routes, authenticated routes, and role-specific routes (e.g., /manager/* requires manager role).
 
-#### 2.4 Core Models & Controllers
-- [ ] **Task:** Create Wallet model and controller
-  - **Brief:** Build wallet schema (user_id, balance, currency). Create controller methods: getBalance, addCredit, deductCredit. Implement transaction locking to prevent race conditions.
+- [ ] **Task:** Create protected page layouts
+  - **Brief:** Build layout components for authenticated sections: `app/(authenticated)/layout.tsx` with role checks. Create separate layouts for buyer, agent, and manager dashboards.
 
-- [ ] **Task:** Create WalletTransaction model
-  - **Brief:** Schema for tracking all wallet activities (type, amount, description, reference_id). Auto-log every wallet change.
+#### 2.4 Core API Routes & Database Tables
+- [ ] **Task:** Create wallets table and API routes
+  - **Brief:** Create `wallets` table in Supabase (user_id, balance, currency, created_at, updated_at). Build API routes: GET /api/wallet (get balance), POST /api/wallet/request-credit (create request).
 
-- [ ] **Task:** Create CreditRequest model and endpoints
-  - **Brief:** Schema for credit requests (user_id, amount, status, payment_link). Build POST /api/credit-requests for buyers, GET for managers.
+- [ ] **Task:** Create wallet_transactions table and logging
+  - **Brief:** Create `wallet_transactions` table in Supabase (wallet_id, type, amount, description, reference_id, created_by, created_at). Auto-log every wallet change using database triggers or API logic.
 
-- [ ] **Task:** Create Lead model and basic CRUD
-  - **Brief:** Complete lead schema with all fields (property info, lead info, marketplace info, status, mode). Create endpoints: POST (agent), GET all, GET by ID, PUT (manager), DELETE (manager).
+- [ ] **Task:** Create credit_requests table and API routes
+  - **Brief:** Create `credit_requests` table (user_id, amount_requested, status, payment_link, notes, created_at, processed_at). Build API: POST /api/credit-requests (buyer), GET /api/admin/credit-requests (manager).
 
-- [ ] **Task:** Create LeadPhoto model
-  - **Brief:** Schema for lead photos (lead_id, photo_url, order). Plan file upload handling (local or cloud storage).
+- [ ] **Task:** Create leads table and CRUD API routes
+  - **Brief:** Create `leads` table with all fields (property info, lead info, marketplace info, status, mode, pricing). Build API routes: POST /api/leads (agent), GET /api/leads (all), GET /api/leads/[id], PUT /api/admin/leads/[id] (manager), DELETE /api/admin/leads/[id].
 
-- [ ] **Task:** Create ContactSubmission model
-  - **Brief:** Schema for landing page contact form (name, email, phone, message, status). Build POST /api/contact endpoint.
+- [ ] **Task:** Create contact_submissions table and API
+  - **Brief:** Create `contact_submissions` table (name, email, phone, message, status, created_at). Build POST /api/contact endpoint for landing page form.
 
 ---
 
 ### Week 5-6: Core Frontend Development
 
-#### 3.1 Frontend Setup
-- [ ] **Task:** Initialize Next.js project
-  - **Brief:** Create Next.js app with TypeScript (optional). Set up folder structure: /pages, /components, /styles, /utils, /contexts, /hooks.
+#### 3.1 Frontend Setup & shadcn/ui
+- [ ] **Task:** Install shadcn/ui components
+  - **Brief:** Run `npx shadcn-ui@latest init`. Configure components.json. Install initial components: button, input, form, card, dialog, dropdown-menu, toast.
 
-- [ ] **Task:** Install and configure Tailwind CSS
-  - **Brief:** Install Tailwind, configure tailwind.config.js, set up global styles, create utility classes for common styles.
+- [ ] **Task:** Set up project folder structure
+  - **Brief:** Organize: `/src/app` (routes), `/src/components` (ui + custom), `/src/lib` (utils, supabase, auth), `/src/hooks` (custom hooks), `/src/types` (TypeScript types).
 
-- [ ] **Task:** Set up API client (Axios)
-  - **Brief:** Install Axios, create API service layer with base URL, interceptors for tokens, error handling.
+- [ ] **Task:** Configure TypeScript paths and aliases
+  - **Brief:** Set up path aliases in `tsconfig.json`: @/components, @/lib, @/types, @/hooks. Makes imports cleaner.
 
-- [ ] **Task:** Create authentication context
-  - **Brief:** Build React Context for auth state (user, isAuthenticated, login, logout, register). Persist auth state to localStorage/cookies.
+- [ ] **Task:** Create Supabase client hooks
+  - **Brief:** Create custom hooks: `useSupabase()` for client components, `useAuth()` for authentication state. Store in `/src/hooks/`.
 
 #### 3.2 Authentication Pages
 - [ ] **Task:** Build Login page
-  - **Brief:** Create /pages/login - form with email/password, validation, loading states, error messages, "Forgot password?" link, redirect after login.
+  - **Brief:** Create `/src/app/(auth)/login/page.tsx` - use shadcn Form component with email/password fields, validation with Zod, loading states, error messages, "Forgot password?" link. Use NextAuth signIn.
 
 - [ ] **Task:** Build Registration/Signup page
-  - **Brief:** Create /pages/signup - form with username, email, password, confirm password, role selection, validation, terms checkbox.
+  - **Brief:** Create `/src/app/(auth)/register/page.tsx` - form with email, password, confirm password, role selection (dropdown). Use react-hook-form + Zod validation. Call Supabase Auth signup.
 
 - [ ] **Task:** Build Forgot Password page
-  - **Brief:** Create /pages/forgot-password - email input, send reset link, confirmation message.
+  - **Brief:** Create `/src/app/(auth)/forgot-password/page.tsx` - email input field, call Supabase Auth resetPasswordForEmail. Show confirmation message.
 
 - [ ] **Task:** Build Reset Password page
-  - **Brief:** Create /pages/reset-password/[token] - new password form, token validation, success/error handling.
+  - **Brief:** Create `/src/app/(auth)/reset-password/page.tsx` - new password form, validate token from URL, call Supabase Auth updateUser. Success/error handling.
 
-- [ ] **Task:** Implement protected route component
-  - **Brief:** Create ProtectedRoute wrapper that checks authentication, redirects to login if not authenticated, shows loading during check.
+- [ ] **Task:** Create auth layout
+  - **Brief:** Create `/src/app/(auth)/layout.tsx` - centered layout for all auth pages with branding, consistent styling, background.
 
 #### 3.3 Landing Page
-- [ ] **Task:** Build navigation header
-  - **Brief:** Create responsive header with logo, navigation links (Home, Marketplace, About, Contact), Login/Signup buttons, mobile hamburger menu.
+- [ ] **Task:** Build navigation header component
+  - **Brief:** Create `/src/components/header.tsx` - responsive header with logo, nav links (Home, Marketplace, About, Contact), Login/Signup buttons. Use shadcn Sheet component for mobile menu.
 
 - [ ] **Task:** Create hero section
-  - **Brief:** Eye-catching hero with headline ("Buy Verified Real Estate Leads"), subheading, CTA buttons ("Browse Marketplace", "Get Started"), background image/video.
+  - **Brief:** Create `/src/app/page.tsx` hero - large headline ("Buy Verified Real Estate Leads"), subheading, CTA buttons using shadcn Button. Add background gradient or image with Tailwind.
 
 - [ ] **Task:** Build "How It Works" section
-  - **Brief:** 3-4 step process with icons: 1) Browse leads, 2) Add credits, 3) Purchase leads, 4) Close deals. Simple and visual.
+  - **Brief:** Create component with 4-step process cards: 1) Browse leads, 2) Add credits, 3) Purchase leads, 4) Close deals. Use icons from lucide-react. Grid layout with Tailwind.
 
 - [ ] **Task:** Create benefits/features section
-  - **Brief:** Grid of feature cards: Verified leads, CRM included, Flexible pricing, Exclusive opportunities, etc. Icons and short descriptions.
+  - **Brief:** Grid of feature cards using shadcn Card component: Verified leads, CRM included, Flexible pricing, Exclusive opportunities. Icons + descriptions.
 
 - [ ] **Task:** Build pricing/options section
-  - **Brief:** Display pricing tiers or "Pay as you go" model. Highlight value proposition.
+  - **Brief:** Display "Pay as you go" pricing model. Use shadcn Card components with pricing info, highlight value proposition.
 
 - [ ] **Task:** Create contact form section
-  - **Brief:** Form with name, email, phone, message. Submit to /api/contact endpoint. Success/error messages.
+  - **Brief:** Form component with shadcn Form: name, email, phone, message fields. Submit to POST /api/contact. Use toast notifications for success/error.
 
-- [ ] **Task:** Build footer
-  - **Brief:** Links (Privacy, Terms, Contact), social media icons, copyright, company info.
+- [ ] **Task:** Build footer component
+  - **Brief:** Create `/src/components/footer.tsx` - links (Privacy, Terms, Contact), social media icons, copyright, company info. Responsive layout.
 
-- [ ] **Task:** Implement responsive design
-  - **Brief:** Test and adjust all landing page sections for mobile, tablet, desktop. Use Tailwind breakpoints.
+- [ ] **Task:** Test responsive design
+  - **Brief:** Test all landing page sections on mobile (sm), tablet (md), desktop (lg, xl) breakpoints. Adjust spacing, font sizes with Tailwind responsive classes.
 
-#### 3.4 Common Components
-- [ ] **Task:** Create reusable Button component
-  - **Brief:** Variants: primary, secondary, outline, danger. Sizes: sm, md, lg. Loading state, disabled state.
+#### 3.4 shadcn/ui Components Setup
+- [ ] **Task:** Install core shadcn components
+  - **Brief:** Run `npx shadcn-ui@latest add button input form card dialog dropdown-menu toast label select textarea checkbox badge`. These are the base components we'll use throughout.
 
-- [ ] **Task:** Create Input/Form components
-  - **Brief:** TextInput, Select, Textarea, Checkbox with labels, error messages, validation states.
+- [ ] **Task:** Create custom Loading component
+  - **Brief:** Create `/src/components/ui/loading.tsx` - spinner component with different sizes. Use lucide-react Loader2 icon with animation.
 
-- [ ] **Task:** Create Card component
-  - **Brief:** Reusable card wrapper for leads, dashboard widgets, etc. Consistent styling.
+- [ ] **Task:** Set up toast notification system
+  - **Brief:** Configure Toaster component in root layout. Create utility functions in `/src/lib/toast.ts` for success, error, info toasts.
 
-- [ ] **Task:** Create Modal component
-  - **Brief:** Popup modal for confirmations, forms, alerts. Backdrop, close button, variants.
+- [ ] **Task:** Create page loading skeleton components
+  - **Brief:** Build skeleton components for: Lead cards, Dashboard stats, Tables. Use shadcn Skeleton component. Store in `/src/components/skeletons/`.
 
-- [ ] **Task:** Create Loading/Spinner component
-  - **Brief:** Loading indicators for buttons, pages, sections. Consistent design.
-
-- [ ] **Task:** Create Alert/Notification component
-  - **Brief:** Toast notifications for success/error messages. Auto-dismiss, manual close.
+- [ ] **Task:** Create custom Badge variants
+  - **Brief:** Extend shadcn Badge component with custom variants for: Lead status (pending, approved, rejected), User roles (buyer, agent, manager). Add to `/src/components/ui/badge.tsx`.
 
 ---
 
